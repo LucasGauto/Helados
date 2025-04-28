@@ -1,0 +1,3 @@
+"""
+Gráficos, reportes visuales
+"""
