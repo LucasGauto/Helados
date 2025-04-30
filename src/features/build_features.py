@@ -5,21 +5,20 @@ Scripts para crtear variables de features para o modelo de machine learning.
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import RobustScaler, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer
+import numpy as np
 
 def build_preprocessing_pipeline(X_train, categorical_features):
     #------------ Grupos ----------------
     num_zero = ['rain_1h']
     num_mean = ['temp', 'dew_point', 'feels_like', 'temp_min', 'temp_max', 'pressure',
-                'visibility', 'humidity', 'wind_speed', 'wind_deg', 'wind_gust',
-                'clouds_all']
+                'humidity', 'wind_speed', 'wind_deg', 'wind_gust', 'clouds_all']
     cat_mode = categorical_features
-
 
     # ----------- Sub-pipelines ---------
     zero_pipe = Pipeline([
         ('imputer', SimpleImputer(strategy='constant', fill_value=0)),
         ('scaler', RobustScaler())
-
     ])
 
     mean_pipe = Pipeline([
