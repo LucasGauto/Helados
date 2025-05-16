@@ -23,6 +23,10 @@ class LagRoller(BaseEstimator, TransformerMixin):
             for w in self.roll_windows:
                 new_cols += [f"{col}_roll{w}_mean", f"{col}_roll{w}_std"]
 
+        # objetivos a futuro
+        for col in base_cols:
+            new_cols += [f"{col}_t_plus_{h}" for h in range(1, self.horizon + 1)]
+
         # almacenamos la lista completa
         self._feature_names_out = np.array(base_cols + new_cols, dtype=object)
         return self
@@ -37,7 +41,14 @@ class LagRoller(BaseEstimator, TransformerMixin):
             for w in self.roll_windows:
                 df[f"{col}_roll{w}_mean"] = df[col].rolling(w).mean().shift(1)
                 df[f"{col}_roll{w}_std"] = df[col].rolling(w).std().shift(1)
+        
+        # targets a futuro
+        for col in X.columns:
+            for h in range(1, self.horizon + 1):
+                df[f"{col}_t_plus_{h}"] = df[col].shift(-h)
+    
         return df.dropna()
+
 
     # magia para el pipeline
     def get_feature_names_out(self, input_features=None):
@@ -161,3 +172,20 @@ class SeasonOrdinalizer(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self, input_features=None):
         return self._feature_names_out
+    
+class AddSeriesNumpy(BaseEstimator, TransformerMixin):
+    def __init__(self, target:str, features_columns:list):
+        self.target = target
+        self.features_columns = features_columns
+
+    def fit(self, X: np.array, y = None):
+        return self\
+        
+    def transform(self, X: np.array, y: pd.DataFrame):
+        columns_names = self.features_columns
+        columns_names.append('kg')
+
+        df_full = pd.DataFrame(X, columns = columns_names)
+        df_full['kg'] = y
+
+        return df_full
